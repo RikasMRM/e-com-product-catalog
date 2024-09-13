@@ -1,7 +1,10 @@
+// File: packages/backend/src/routes/products.ts
+
 import express from "express";
 import { eq, like, or } from "drizzle-orm";
 import { db } from "../db";
 import { products, NewProduct } from "../models/product";
+import { sendResponse, handleServerError } from "../utils/apiUtils";
 
 export const productsRouter = express.Router();
 
@@ -13,10 +16,16 @@ export const productsRouter = express.Router();
  *     responses:
  *       200:
  *         description: A list of products
+ *       500:
+ *         description: Internal server error
  */
 productsRouter.get("/", (req, res) => {
-  const allProducts = db.select().from(products).all();
-  res.json(allProducts);
+  try {
+    const allProducts = db.select().from(products).all();
+    sendResponse(res, 200, allProducts);
+  } catch (error) {
+    handleServerError(res, error);
+  }
 });
 
 /**
@@ -33,28 +42,33 @@ productsRouter.get("/", (req, res) => {
  *     responses:
  *       200:
  *         description: A list of matching products
+ *       500:
+ *         description: Internal server error
  */
 productsRouter.get("/search", (req, res) => {
-  const query = req.query.query as string;
+  try {
+    const query = req.query.query as string;
 
-  if (!query) {
-    // If no query is provided, return all products
-    const allProducts = db.select().from(products).all();
-    return res.json(allProducts);
+    let searchResults;
+    if (!query) {
+      searchResults = db.select().from(products).all();
+    } else {
+      searchResults = db
+        .select()
+        .from(products)
+        .where(
+          or(
+            like(products.name, `%${query}%`),
+            like(products.description, `%${query}%`)
+          )
+        )
+        .all();
+    }
+
+    sendResponse(res, 200, searchResults);
+  } catch (error) {
+    handleServerError(res, error);
   }
-
-  const searchResults = db
-    .select()
-    .from(products)
-    .where(
-      or(
-        like(products.name, `%${query}%`),
-        like(products.description, `%${query}%`)
-      )
-    )
-    .all();
-
-  res.json(searchResults);
 });
 
 /**
@@ -73,15 +87,25 @@ productsRouter.get("/search", (req, res) => {
  *         description: A single product
  *       404:
  *         description: Product not found
+ *       500:
+ *         description: Internal server error
  */
 productsRouter.get("/:id", (req, res) => {
-  const id = parseInt(req.params.id);
-  const product = db.select().from(products).where(eq(products.id, id)).get();
+  try {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return sendResponse(res, 400, undefined, "Invalid product ID");
+    }
 
-  if (product) {
-    res.json(product);
-  } else {
-    res.status(404).json({ message: "Product not found" });
+    const product = db.select().from(products).where(eq(products.id, id)).get();
+
+    if (product) {
+      sendResponse(res, 200, product);
+    } else {
+      sendResponse(res, 404, undefined, "Product not found");
+    }
+  } catch (error) {
+    handleServerError(res, error);
   }
 });
 
@@ -115,19 +139,26 @@ productsRouter.get("/:id", (req, res) => {
  *         description: Created
  *       400:
  *         description: Bad request
+ *       500:
+ *         description: Internal server error
  */
 productsRouter.post("/", (req, res) => {
-  const newProduct: NewProduct = req.body;
+  try {
+    const newProduct: NewProduct = req.body;
 
-  if (
-    !newProduct.name ||
-    !newProduct.description ||
-    typeof newProduct.price !== "number" ||
-    !newProduct.category
-  ) {
-    return res.status(400).json({ message: "Invalid product data" });
+    if (
+      !newProduct.name ||
+      !newProduct.description ||
+      typeof newProduct.price !== "number" ||
+      newProduct.price <= 0 ||
+      !newProduct.category
+    ) {
+      return sendResponse(res, 400, undefined, "Invalid product data");
+    }
+
+    const insertedProduct = db.insert(products).values(newProduct).run();
+    sendResponse(res, 201, insertedProduct);
+  } catch (error) {
+    handleServerError(res, error);
   }
-
-  const insertedProduct = db.insert(products).values(newProduct).run();
-  res.status(201).json(insertedProduct);
 });
