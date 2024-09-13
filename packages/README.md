@@ -2,8 +2,6 @@
 
 This project is a simple e-commerce product catalog application with a React frontend and an Express.js backend.
 
-![Project Screenshot](Frame.png)
-
 ## Prerequisites
 
 - Node.js (v14 or later)
@@ -16,12 +14,39 @@ The project is set up as a monorepo with two main packages:
 - `packages/frontend`: React frontend
 - `packages/backend`: Express.js backend
 
+## Running with Docker
+
+This project can also be run using Docker. Make sure you have Docker and Docker Compose installed on your system.
+
+1. Clone the repository:
+
+   ```
+   git clone [<repository-url>](https://github.com/RikasMRM/e-com-product-catalog.git)
+   cd ecommerce-monorepo/packages
+   ```
+
+2. Build and run the Docker containers:
+
+   ```
+   docker-compose up --build
+   ```
+
+3. Access the application:
+   - Frontend: http://localhost
+   - Backend API: http://localhost:3000
+
+To stop the containers, press Ctrl+C in the terminal where docker-compose is running, or run:
+
+```
+docker-compose down
+```
+
 ## Setup and Installation
 
 1. Clone the repository:
 
    ```
-   git clone <repository-url>
+   git clone [<repository-url>](https://github.com/RikasMRM/e-com-product-catalog.git)
    cd ecommerce-monorepo
    ```
 
