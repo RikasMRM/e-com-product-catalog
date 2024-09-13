@@ -2,6 +2,8 @@
 
 This project is a simple e-commerce product catalog application with a React frontend and an Express.js backend.
 
+![Project Screenshot](Frame 1.png)
+
 ## Prerequisites
 
 - Node.js (v14 or later)
