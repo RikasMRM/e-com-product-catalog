@@ -2,7 +2,7 @@
 
 This project is a simple e-commerce product catalog application with a React frontend and an Express.js backend.
 
-![Project Screenshot](images/Frame.png)
+Demo Link : https://www.loom.com/share/3f505ca09a774206af5990a806c816f0
 
 ## Prerequisites
 
@@ -119,3 +119,7 @@ docker-compose down
   - TypeScript
   - Drizzle ORM
   - SQLite (in-memory)
+
+## Project Screenshot
+
+![Project Screenshot](images/Frame.png)
