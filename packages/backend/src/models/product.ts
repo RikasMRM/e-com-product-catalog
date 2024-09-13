@@ -1,3 +1,4 @@
+import { InferModel } from "drizzle-orm";
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 
 export const products = sqliteTable("products", {
@@ -8,5 +9,5 @@ export const products = sqliteTable("products", {
   category: text("category").notNull(),
 });
 
-export type Product = typeof products.$inferSelect;
-export type NewProduct = typeof products.$inferInsert;
+export type Product = InferModel<typeof products>;
+export type NewProduct = InferModel<typeof products, "insert">;
